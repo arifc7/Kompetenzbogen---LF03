@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lernprozess – Netzwerktechnik</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   RESET & CSS VARIABLES
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080b0f;
+  --bg2:       #0d1117;
+  --surface:   #131920;
+  --card:      #161d26;
+  --border:    #1e2a38;
+  --border2:   #243040;
+
+  --cyan:      #00e5ff;
+  --cyan-dim:  rgba(0,229,255,0.12);
+  --green:     #39ff8a;
+  --green-dim: rgba(57,255,138,0.10);
+  --amber:     #ffb627;
+  --amber-dim: rgba(255,182,39,0.10);
+  --red:       #ff4d6a;
+  --red-dim:   rgba(255,77,106,0.10);
+
+  --text:      #dce8f0;
+  --muted:     #5a7080;
+  --muted2:    #3a5060;
+
+  --mono:  'IBM Plex Mono', monospace;
+  --head:  'Syne', sans-serif;
+  --body:  'Lato', sans-serif;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+/* Grid-texture background */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,229,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; inset-inline: 0;
+  z-index: 200;
+  height: 54px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem;
+  background: rgba(8,11,15,0.88);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--cyan);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex; gap: 2rem; list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.nav-links a:hover { color: var(--cyan); }
+
+/* ═══════════════════════════════════════════
+   LAYOUT WRAPPERS
+═══════════════════════════════════════════ */
+.section-wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 7rem 2rem 5rem;
+}
+
+.section-wrap.narrow { max-width: 780px; }
+
+/* ═══════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════ */
+.s-eyebrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 0.7rem;
+}
+
+.s-title {
+  font-family: var(--head);
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.s-desc {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 580px;
+  margin-bottom: 3rem;
+}
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+#hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+}
+.glow-1 { width:600px;height:600px; background:rgba(0,229,255,0.06); top:-100px;right:-150px; animation:pulse 9s ease-in-out infinite; }
+.glow-2 { width:400px;height:400px; background:rgba(57,255,138,0.05); bottom:0;left:-80px;    animation:pulse 12s ease-in-out infinite 2s; }
+
+@keyframes pulse {
+  0%,100% { opacity:.7; transform:scale(1); }
+  50%      { opacity:1;  transform:scale(1.08); }
+}
+
+.hero-inner { position:relative; z-index:1; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--cyan);
+  border: 1px solid rgba(0,229,255,.25);
+  background: rgba(0,229,255,.06);
+  padding: .35rem .85rem; border-radius: 99px;
+  margin-bottom: 1.4rem;
+  opacity: 0; animation: fadeUp .6s .1s forwards;
+}
+
+.hero-title {
+  font-family: var(--head);
+  font-size: clamp(2.8rem, 7vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  opacity: 0; animation: fadeUp .7s .25s forwards;
+}
+
+.hero-title .hi { color: var(--cyan); }
+
+.hero-sub {
+  margin-top: 1.2rem;
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 560px;
+  opacity: 0; animation: fadeUp .7s .4s forwards;
+}
+
+.hero-chips {
+  display: flex; flex-wrap: wrap; gap: .5rem;
+  margin-top: 2rem;
+  opacity: 0; animation: fadeUp .7s .55s forwards;
+}
+
+.chip {
+  font-family: var(--mono);
+  font-size: 0.68rem; letter-spacing: .1em; text-transform: uppercase;
+  padding: .3rem .75rem; border-radius: 5px; border: 1px solid;
+}
+.chip-c { border-color:var(--cyan);  color:var(--cyan);  background:var(--cyan-dim); }
+.chip-g { border-color:var(--green); color:var(--green); background:var(--green-dim);}
+.chip-a { border-color:var(--amber); color:var(--amber); background:var(--amber-dim);}
+.chip-r { border-color:var(--red);   color:var(--red);   background:var(--red-dim);  }
+
+/* Hero progress summary */
+.hero-skills {
+  margin-top: 3rem; max-width: 520px;
+  opacity: 0; animation: fadeUp .7s .7s forwards;
+}
+
+/* ═══════════════════════════════════════════
+   SKILL BARS
+═══════════════════════════════════════════ */
+.skill-row { margin-bottom: 1.2rem; }
+
+.skill-meta {
+  display: flex; justify-content: space-between;
+  margin-bottom: .4rem;
+}
+
+.skill-name {
+  font-family: var(--mono); font-size: .78rem; letter-spacing: .06em;
+}
+
+.skill-val {
+  font-family: var(--mono); font-size: .75rem; color: var(--cyan);
+}
+
+.bar-bg {
+  height: 5px; background: var(--border2);
+  border-radius: 99px; overflow: hidden;
+}
+
+.bar {
+  height: 100%; border-radius: 99px; width: 0;
+  transition: width 1.6s cubic-bezier(.2,1,.4,1);
+}
+
+.bar-c { background: linear-gradient(90deg, var(--cyan), #008fb0); }
+.bar-g { background: linear-gradient(90deg, var(--green), #00b055); }
+.bar-a { background: linear-gradient(90deg, var(--amber), #d48000); }
+.bar-r { background: linear-gradient(90deg, var(--red),  #b01030); }
+
+/* ═══════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.6rem;
+  position: relative; overflow: hidden;
+  transition: border-color .3s, transform .3s, box-shadow .3s;
+}
+
+.card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(0,229,255,0.03), transparent);
+  pointer-events: none;
+  border-radius: var(--radius-lg);
+}
+
+.card:hover {
+  border-color: rgba(0,229,255,.3);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,229,255,.07);
+}
+
+.card-accent-top::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.card-accent-top.cyan::before  { background: linear-gradient(90deg, var(--cyan), transparent); }
+.card-accent-top.green::before { background: linear-gradient(90deg, var(--green), transparent); }
+.card-accent-top.amber::before { background: linear-gradient(90deg, var(--amber), transparent); }
+.card-accent-top.red::before   { background: linear-gradient(90deg, var(--red), transparent); }
+
+/* ═══════════════════════════════════════════
+   GRIDS
+═══════════════════════════════════════════ */
+.g2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.2rem; }
+.g3 { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.2rem; }
+
+/* ═══════════════════════════════════════════
+   BEFORE / AFTER
+═══════════════════════════════════════════ */
+.ba-wrap {
+  display: grid; grid-template-columns: 1fr 36px 1fr;
+  gap: .6rem; align-items: center; margin: 1rem 0;
+}
+
+.ba-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: .85rem 1rem;
+  font-size: .88rem;
+}
+
+.ba-label {
+  font-family: var(--mono); font-size: .62rem;
+  letter-spacing: .14em; text-transform: uppercase;
+  margin-bottom: .3rem;
+}
+
+.ba-box.before .ba-label { color: var(--red); }
+.ba-box.after  .ba-label { color: var(--green); }
+
+.ba-arrow {
+  text-align: center; font-size: 1.1rem; color: var(--muted);
+}
+
+/* ═══════════════════════════════════════════
+   SPEECH BUBBLE (Präsentationstext)
+═══════════════════════════════════════════ */
+.speech {
+  position: relative;
+  background: rgba(0,229,255,.05);
+  border: 1px solid rgba(0,229,255,.18);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem 1rem 2.8rem;
+  font-size: .88rem;
+  color: #a0c0cc;
+  line-height: 1.7;
+  margin: 1.2rem 0;
+}
+
+.speech::before {
+  content: '💬';
+  position: absolute; left: .9rem; top: .95rem;
+  font-size: .9rem;
+}
+
+.speech-label {
+  font-family: var(--mono); font-size: .6rem;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--cyan); display: block;
+  margin-bottom: .3rem;
+}
+
+/* ═══════════════════════════════════════════
+   CODE BLOCK
+═══════════════════════════════════════════ */
+.code-block {
+  background: #0a0f15;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--green);
+  line-height: 1.9;
+  overflow-x: auto;
+  margin: .8rem 0;
+}
+
+.code-block .cm  { color: var(--muted); }
+.code-block .cv  { color: var(--cyan); }
+.code-block .ca  { color: var(--amber); }
+
+/* ═══════════════════════════════════════════
+   OSI VISUALIZER
+═══════════════════════════════════════════ */
+.osi-grid {
+  display: flex; flex-direction: column; gap: .5rem;
+}
+
+.osi-layer {
+  display: grid;
+  grid-template-columns: 36px 140px 1fr auto;
+  gap: 1rem; align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .7rem 1rem;
+  transition: background .25s, border-color .25s, transform .2s;
+  cursor: default;
+}
+
+.osi-layer:hover {
+  background: var(--card);
+  border-color: var(--cyan);
+  transform: translateX(4px);
+}
+
+.osi-num {
+  font-family: var(--mono); font-size: .75rem;
+  font-weight: 500; text-align: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.osi-name {
+  font-family: var(--head); font-size: .9rem; font-weight: 700;
+}
+
+.osi-func {
+  font-size: .82rem; color: var(--muted);
+}
+
+.osi-device {
+  font-family: var(--mono); font-size: .68rem;
+  padding: .2rem .55rem; border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* OSI colors */
+.l7 { --lc:#ff4d6a; } .l6 { --lc:#ff8f40; }
+.l5 { --lc:#ffb627; } .l4 { --lc:#39ff8a; }
+.l3 { --lc:#00e5ff; } .l2 { --lc:#7b5ef8; } .l1 { --lc:#a855f7; }
+
+.osi-layer .osi-num   { background:color-mix(in srgb,var(--lc) 15%,transparent); color:var(--lc); }
+.osi-layer .osi-name  { color:var(--lc); }
+.osi-layer .osi-device{ background:color-mix(in srgb,var(--lc) 12%,transparent); color:var(--lc); border:1px solid color-mix(in srgb,var(--lc) 30%,transparent); }
+
+/* ═══════════════════════════════════════════
+   DATAFLOW ANIMATION
+═══════════════════════════════════════════ */
+.flow-steps {
+  display: flex; flex-direction: column; gap: .4rem;
+}
+
+.flow-step {
+  display: flex; align-items: center; gap: .8rem;
+  padding: .6rem .9rem;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px;
+  opacity: 0; transform: translateX(-10px);
+  transition: opacity .4s, transform .4s, border-color .3s;
+}
+
+.flow-step.show {
+  opacity: 1; transform: none;
+}
+
+.flow-step:hover { border-color: rgba(0,229,255,.3); }
+
+.flow-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.flow-text { font-size: .85rem; }
+.flow-layer { font-family: var(--mono); font-size: .68rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+/* ═══════════════════════════════════════════
+   SCREENSHOT SLOTS
+═══════════════════════════════════════════ */
+.slot-label {
+  font-family: var(--mono); font-size: .68rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: .5rem;
+}
+
+.slot {
+  background: var(--surface);
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius-lg);
+  aspect-ratio: 16/9;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: .4rem;
+  color: var(--muted); font-size: .82rem;
+  cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+
+.slot:hover { border-color: var(--cyan); color: var(--cyan); }
+
+.slot input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+}
+
+.slot img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.slot-ico { font-size: 2rem; }
+
+/* ═══════════════════════════════════════════
+   TIMELINE
+═══════════════════════════════════════════ */
+.timeline {
+  position: relative; padding-left: 2.2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute; left: .55rem; top: .6rem; bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--cyan), var(--green), rgba(0,229,255,0) 92%);
+}
+
+.tl-item {
+  position: relative; margin-bottom: 2.2rem;
+  opacity: 0; transform: translateY(12px);
+  transition: opacity .5s, transform .5s;
+}
+
+.tl-item.vis { opacity:1; transform:none; }
+
+.tl-dot {
+  position: absolute; left: -1.8rem; top: .3rem;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+.tl-date {
+  font-family: var(--mono); font-size: .68rem;
+  letter-spacing: .12em; color: var(--cyan); margin-bottom: .2rem;
+}
+
+.tl-head {
+  font-family: var(--head); font-size: 1rem;
+  font-weight: 700; margin-bottom: .3rem;
+}
+
+.tl-body { font-size: .88rem; color: var(--muted); }
+
+/* ═══════════════════════════════════════════
+   SOFT SKILL RATING
+═══════════════════════════════════════════ */
+.rating-dots {
+  display: flex; gap: .35rem; margin: .5rem 0 .8rem;
+}
+
+.rdot {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--border2);
+  transition: background .4s, box-shadow .4s;
+}
+
+.rdot.on { background: var(--cyan); box-shadow: 0 0 7px var(--cyan); }
+
+/* ═══════════════════════════════════════════
+   REFLECTION BLOCKS
+═══════════════════════════════════════════ */
+.refl-item {
+  border-left: 3px solid var(--border2);
+  padding: .8rem 1.2rem;
+  margin-bottom: 1rem;
+  border-radius: 0 8px 8px 0;
+  transition: border-color .3s;
+}
+
+.refl-item:hover { border-color: var(--cyan); }
+
+.refl-q {
+  font-family: var(--mono); font-size: .7rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--cyan); margin-bottom: .35rem;
+}
+
+.refl-a { font-size: .9rem; color: var(--muted); line-height: 1.7; }
+
+/* ═══════════════════════════════════════════
+   GRADE BOX
+═══════════════════════════════════════════ */
+.grade-wrap {
+  background: linear-gradient(135deg,
+    rgba(0,229,255,.07) 0%,
+    rgba(57,255,138,.05) 100%);
+  border: 1px solid rgba(0,229,255,.22);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+
+.grade-wrap::before {
+  content: '';
+  position: absolute; inset: -1px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(0,229,255,.15), transparent, rgba(57,255,138,.1));
+  pointer-events: none;
+}
+
+.grade-num {
+  font-family: var(--head); font-size: 7rem;
+  font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, var(--cyan), var(--green));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.grade-sub {
+  font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--muted); margin-top: .2rem;
+}
+
+.grade-reason {
+  max-width: 560px; margin: 1.8rem auto 0;
+  font-size: .92rem; color: var(--text); line-height: 1.75;
+}
+
+/* ═══════════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════════ */
+.rv {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s, transform .6s;
+}
+
+.rv.vis { opacity:1; transform:none; }
+
+/* ═══════════════════════════════════════════
+   KEYFRAMES
+═══════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ═══════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════ */
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  margin: 2.5rem 0;
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  padding: 2rem;
+  font-family: var(--mono); font-size: .7rem;
+  letter-spacing: .1em; color: var(--muted2);
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .nav-links  { display: none; }
+  .ba-wrap    { grid-template-columns: 1fr; }
+  .ba-arrow   { display: none; }
+  .osi-layer  { grid-template-columns: 28px 1fr; }
+  .osi-func, .osi-device { display: none; }
+  .grade-num  { font-size: 5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     NAVBAR
+══════════════════════════════════ -->
+<nav>
+  <span class="nav-brand">NET // Portfolio</span>
+  <ul class="nav-links">
+    <li><a href="#hero">Start</a></li>
+    <li><a href="#ziele">Lernziele</a></li>
+    <li><a href="#subnetting">Subnetting</a></li>
+    <li><a href="#osi">OSI-Modell</a></li>
+    <li><a href="#nachweise">Nachweise</a></li>
+    <li><a href="#soft">Soft Skills</a></li>
+    <li><a href="#reflexion">Reflexion</a></li>
+    <li><a href="#note">Note</a></li>
+  </ul>
+</nav>
+
+
+<!-- ══════════════════════════════════
+     1 · HERO / DASHBOARD
+══════════════════════════════════ -->
+<section id="hero">
+  <div class="section-wrap">
+    <div class="hero-glow glow-1"></div>
+    <div class="hero-glow glow-2"></div>
+
+    <div class="hero-inner">
+      <div class="hero-badge">⚡ Lernfeld Netzwerktechnik · 2024/25</div>
+
+      <h1 class="hero-title">
+        Mein Lernprozess<br>
+        <span class="hi">Netzwerktechnik</span>
+      </h1>
+
+      <p class="hero-sub">
+        Dokumentation meines individuellen Kompetenzzuwachses –
+        von null Vorkenntnissen zu sicherer, anwendbarer Fachkompetenz
+        in Subnetting, OSI-Modell und Netzwerkpraxis.
+      </p>
+
+      <div class="hero-chips">
+        <span class="chip chip-c">Subnetting</span>
+        <span class="chip chip-g">OSI-Modell</span>
+        <span class="chip chip-a">Kommunikation</span>
+        <span class="chip chip-r">Problemlösung</span>
+      </div>
+
+      <!-- Kompetenz-Übersicht -->
+      <div class="hero-skills">
+        <div class="skill-row">
+          <div class="skill-meta">
+            <span class="skill-name">Subnetting</span>
+            <span class="skill-val">85%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-c" data-w="85"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta">
+            <span class="skill-name">OSI-Modell</span>
+            <span class="skill-val">90%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-g" data-w="90"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta">
+            <span class="skill-name">Kommunikationsfähigkeit</span>
+            <span class="skill-val">75%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-a" data-w="75"></div></div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-meta">
+            <span class="skill-name">Problemlösung</span>
+            <span class="skill-val">80%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-r" data-w="80"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     2 · LERNZIELE & ENTWICKLUNG
+══════════════════════════════════ -->
+<section id="ziele">
+  <div class="section-wrap">
+    <p class="s-eyebrow rv">Meine Ziele</p>
+    <h2 class="s-title rv">Lernziele & Entwicklung</h2>
+    <p class="s-desc rv">
+      Zu Beginn des Lernfelds habe ich meinen Ist-Stand analysiert und konkrete Lernziele festgelegt.
+      Hier siehst du den direkten Vergleich: wo ich gestartet bin – und wo ich jetzt stehe.
+    </p>
+
+    <div class="g2">
+      <!-- Subnetting BA -->
+      <div class="card card-accent-top cyan rv">
+        <span style="font-size:1.6rem;display:block;margin-bottom:.7rem">🔢</span>
+        <h3 style="font-family:var(--head);font-size:1.1rem;margin-bottom:.3rem">Subnetting</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:.8rem">Fachliche Hauptkompetenz</p>
+
+        <div class="ba-wrap">
+          <div class="ba-box before">
+            <div class="ba-label">Vorher</div>
+            Keine Vorkenntnisse. Begriff „Subnetzmaske" unbekannt. Keine Berechnungen möglich.
+          </div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-box after">
+            <div class="ba-label">Jetzt</div>
+            Sichere Berechnung von Netz-, Broadcast- und Hostadressen. VLSM-Konzept verstanden.
+          </div>
+        </div>
+
+        <div class="skill-row" style="margin-top:1rem">
+          <div class="skill-meta">
+            <span class="skill-name">Fortschritt</span>
+            <span class="skill-val">85%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-c" data-w="85"></div></div>
+        </div>
+      </div>
+
+      <!-- OSI BA -->
+      <div class="card card-accent-top green rv">
+        <span style="font-size:1.6rem;display:block;margin-bottom:.7rem">📶</span>
+        <h3 style="font-family:var(--head);font-size:1.1rem;margin-bottom:.3rem">OSI-Modell</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:.8rem">Fachliche Hauptkompetenz</p>
+
+        <div class="ba-wrap">
+          <div class="ba-box before">
+            <div class="ba-label">Vorher</div>
+            OSI-Modell oberflächlich bekannt. Keine Schichten benennen oder erklären können.
+          </div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-box after">
+            <div class="ba-label">Jetzt</div>
+            Alle 7 Schichten erklärbar. Geräte + Protokolle zuordenbar. Datenfluss komplett erklärbar.
+          </div>
+        </div>
+
+        <div class="skill-row" style="margin-top:1rem">
+          <div class="skill-meta">
+            <span class="skill-name">Fortschritt</span>
+            <span class="skill-val">90%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-g" data-w="90"></div></div>
+        </div>
+      </div>
+
+      <!-- Kommunikation BA -->
+      <div class="card card-accent-top amber rv">
+        <span style="font-size:1.6rem;display:block;margin-bottom:.7rem">💬</span>
+        <h3 style="font-family:var(--head);font-size:1.1rem;margin-bottom:.3rem">Kommunikationsfähigkeit</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:.8rem">Überfachliche Kompetenz</p>
+
+        <div class="ba-wrap">
+          <div class="ba-box before">
+            <div class="ba-label">Vorher</div>
+            Schwierigkeiten, technische Inhalte verständlich zu erklären. Wenig aktive Teilnahme.
+          </div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-box after">
+            <div class="ba-label">Jetzt</div>
+            Fachbegriffe bewusst und verständlich erklärt. Aktive Rolle in Teamgesprächen.
+          </div>
+        </div>
+
+        <div class="skill-row" style="margin-top:1rem">
+          <div class="skill-meta">
+            <span class="skill-name">Fortschritt</span>
+            <span class="skill-val">75%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-a" data-w="75"></div></div>
+        </div>
+      </div>
+
+      <!-- Problemlösung BA -->
+      <div class="card card-accent-top red rv">
+        <span style="font-size:1.6rem;display:block;margin-bottom:.7rem">🧩</span>
+        <h3 style="font-family:var(--head);font-size:1.1rem;margin-bottom:.3rem">Problemlösung</h3>
+        <p style="font-size:.83rem;color:var(--muted);margin-bottom:.8rem">Überfachliche Kompetenz</p>
+
+        <div class="ba-wrap">
+          <div class="ba-box before">
+            <div class="ba-label">Vorher</div>
+            Überfordert bei komplexen Aufgaben. Kein strukturiertes Vorgehen.
+          </div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-box after">
+            <div class="ba-label">Jetzt</div>
+            Systematische Herangehensweise: Problem zerlegen, Schritte abarbeiten, Fehler lokalisieren.
+          </div>
+        </div>
+
+        <div class="skill-row" style="margin-top:1rem">
+          <div class="skill-meta">
+            <span class="skill-name">Fortschritt</span>
+            <span class="skill-val">80%</span>
+          </div>
+          <div class="bar-bg"><div class="bar bar-r" data-w="80"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     3a · SUBNETTING
+══════════════════════════════════ -->
+<section id="subnetting">
+  <div class="section-wrap">
+    <p class="s-eyebrow rv">Fachliche Entwicklung · 01</p>
+    <h2 class="s-title rv">Subnetting</h2>
+    <p class="s-desc rv">
+      Von null Vorkenntnissen zu sicherer, eigenständiger Anwendung –
+      einschließlich komplexerer Konzepte wie VLSM.
+    </p>
+
+    <!-- Präsentationstext -->
+    <div class="speech rv">
+      <span class="speech-label">Präsentation – was ich dazu sagen kann:</span>
+      „Subnetting war für mich das schwierigste Thema zu Beginn. Ich hatte keine Ahnung, was eine Subnetzmaske überhaupt ist oder warum man Netzwerke aufteilt. Heute kann ich erklären: Subnetting dient dazu, ein großes IP-Netzwerk in kleinere, logisch getrennte Teilnetze aufzuteilen. Das spart Adressen und erhöht die Übersichtlichkeit. Ich kann jetzt selbstständig Netzadresse, Broadcastadresse, Hostanzahl und Adressbereich berechnen – und ich habe auch VLSM kennengelernt, also die variable Subnetz-Maskierung, bei der man verschiedene Subnetzgrößen innerhalb eines Netzes verwendet."
+    </div>
+
+    <div class="g2 rv">
+      <!-- Was ich gelernt habe -->
+      <div class="card card-accent-top cyan">
+        <h3 style="font-family:var(--head);font-size:1rem;margin-bottom:.9rem;color:var(--cyan)">Was ich gelernt habe</h3>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.6rem;">
+          <li style="display:flex;gap:.7rem;font-size:.88rem;align-items:flex-start">
+            <span style="color:var(--cyan);margin-top:.1rem">▸</span>
+            Subnetzmasken in CIDR-Notation und binär lesen und schreiben
+          </li>
+          <li style="display:flex;gap:.7rem;font-size:.88rem;align-items:flex-start">
+            <span style="color:var(--cyan);margin-top:.1rem">▸</span>
+            Netzadresse, erste/letzte Hostadresse und Broadcastadresse berechnen
+          </li>
+          <li style="display:flex;gap:.7rem;font-size:.88rem;align-items:flex-start">
+            <span style="color:var(--cyan);margin-top:.1rem">▸</span>
+            Anzahl nutzbarer Hosts ermitteln (2<sup>n</sup> − 2)
+          </li>
+          <li style="display:flex;gap:.7rem;font-size:.88rem;align-items:flex-start">
+            <span style="color:var(--cyan);margin-top:.1rem">▸</span>
+            Subnetze für gegebene Anforderungen planen
+          </li>
+          <li style="display:flex;gap:.7rem;font-size:.88rem;align-items:flex-start">
+            <span style="color:var(--cyan);margin-top:.1rem">▸</span>
+            VLSM – Variable Length Subnet Masking verstehen und anwenden
+          </li>
+        </ul>
+      </div>
+
+      <!-- Beispielrechnung -->
+      <div class="card card-accent-top green">
+        <h3 style="font-family:var(--head);font-size:1rem;margin-bottom:.9rem;color:var(--green)">Beispielrechnung</h3>
+        <div class="code-block">
+<span class="cm"># Aufgabe: Analysiere 192.168.10.0/26</span>
+
+Präfix:       /26
+Maske:        <span class="cv">255.255.255.192</span>
+Binär:        11111111.11111111.11111111.<span class="ca">11000000</span>
+
+Host-Bits:    <span class="cv">6</span>  (32 − 26 = 6)
+Hosts nutzb.: <span class="cv">62</span> (2^6 − 2 = 62)
+
+Netzadresse:  <span class="cv">192.168.10.0</span>
+1. Host:      192.168.10.1
+Letzter Host: 192.168.10.62
+Broadcast:    <span class="cv">192.168.10.63</span>
+        </div>
+
+        <div class="speech" style="margin-top:.8rem">
+          <span class="speech-label">Erklärung im Gespräch:</span>
+          „Das /26 bedeutet: 26 Bits sind Netzanteil. Übrig bleiben 6 Host-Bits. 2 hoch 6 ergibt 64 – minus 2 für Netz und Broadcast macht 62 nutzbare Adressen. Die Netzadresse ist die erste, der Broadcast die letzte Adresse im Block."
+        </div>
+      </div>
+    </div>
+
+    <!-- VLSM Erklärung -->
+    <div class="card rv" style="margin-top:1.2rem;">
+      <h3 style="font-family:var(--head);font-size:1rem;margin-bottom:.6rem;color:var(--amber)">⚡ VLSM – Variable Length Subnet Masking</h3>
+      <p style="font-size:.88rem;color:var(--muted);margin-bottom:.8rem">
+        VLSM erlaubt es, Subnetze unterschiedlicher Größe aus demselben Adressraum zu entnehmen –
+        effizient und ohne Adressverschwendung.
+      </p>
+      <div class="code-block">
+<span class="cm"># Beispiel: 192.168.1.0/24 aufteilen für 3 Abteilungen</span>
+
+Vertrieb (50 Hosts):   192.168.1.0/<span class="cv">26</span>   → 62 Hosts
+IT      (20 Hosts):   192.168.1.64/<span class="cv">27</span>  → 30 Hosts
+Mgmt    ( 5 Hosts):   192.168.1.96/<span class="cv">29</span>  →  6 Hosts
+      </div>
+      <div class="speech">
+        <span class="speech-label">Präsentation:</span>
+        „VLSM ist die Weiterentwicklung von Subnetting. Anstatt alle Subnetze gleich groß zu machen, passe ich die Maske an den tatsächlichen Bedarf an. Das spart IP-Adressen und macht das Netz übersichtlicher."
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     3b · OSI-MODELL
+══════════════════════════════════ -->
+<section id="osi">
+  <div class="section-wrap">
+    <p class="s-eyebrow rv">Fachliche Entwicklung · 02</p>
+    <h2 class="s-title rv">OSI-Modell</h2>
+    <p class="s-desc rv">
+      Das OSI-Referenzmodell beschreibt in 7 Schichten, wie Datenkommunikation
+      funktioniert – von der physischen Leitung bis zur Anwendung.
+    </p>
+
+    <div class="speech rv">
+      <span class="speech-label">Präsentation – Einstieg:</span>
+      „Das OSI-Modell war für mich zunächst reines Auswendiglernen. Heute kann ich es wirklich anwenden: Ich weiß, was auf jeder Schicht passiert, welche Protokolle und Geräte dazu gehören – und ich kann erklären, was zum Beispiel passiert, wenn ich eine Webseite aufrufe, also eine HTTP-Anfrage durch alle sieben Schichten geht."
+    </div>
+
+    <!-- 7-Schichten Visualizer -->
+    <div class="osi-grid rv" style="margin-bottom:2rem;">
+      <div class="osi-layer l7">
+        <div class="osi-num">7</div>
+        <div class="osi-name">Anwendung</div>
+        <div class="osi-func">Dienste für Anwendungen (HTTP, FTP, DNS, SMTP)</div>
+        <div class="osi-device">Browser / App</div>
+      </div>
+      <div class="osi-layer l6">
+        <div class="osi-num">6</div>
+        <div class="osi-name">Darstellung</div>
+        <div class="osi-func">Kodierung, Verschlüsselung, Kompression (SSL/TLS, JPEG)</div>
+        <div class="osi-device">SSL/TLS</div>
+      </div>
+      <div class="osi-layer l5">
+        <div class="osi-num">5</div>
+        <div class="osi-name">Sitzung</div>
+        <div class="osi-func">Verbindungsauf- und -abbau, Synchronisation (NetBIOS)</div>
+        <div class="osi-device">Session Mgr</div>
+      </div>
+      <div class="osi-layer l4">
+        <div class="osi-num">4</div>
+        <div class="osi-name">Transport</div>
+        <div class="osi-func">Ende-zu-Ende-Kommunikation, Ports, Segmente (TCP, UDP)</div>
+        <div class="osi-device">TCP / UDP</div>
+      </div>
+      <div class="osi-layer l3">
+        <div class="osi-num">3</div>
+        <div class="osi-name">Netzwerk</div>
+        <div class="osi-func">IP-Adressierung, Routing, Pakete (IP, ICMP)</div>
+        <div class="osi-device">Router</div>
+      </div>
+      <div class="osi-layer l2">
+        <div class="osi-num">2</div>
+        <div class="osi-name">Sicherung</div>
+        <div class="osi-func">MAC-Adressen, Frames, Fehlererkennung (Ethernet)</div>
+        <div class="osi-device">Switch / Bridge</div>
+      </div>
+      <div class="osi-layer l1">
+        <div class="osi-num">1</div>
+        <div class="osi-name">Bitübertragung</div>
+        <div class="osi-func">Physische Übertragung, Bits, Signale (Kabel, WLAN, Hub)</div>
+        <div class="osi-device">Hub / Kabel</div>
+      </div>
+    </div>
+
+    <!-- Datenfluss HTTP -->
+    <div class="rv">
+      <h3 style="font-family:var(--head);font-size:1.05rem;margin-bottom:.5rem;">
+        Beispiel: HTTP-Anfrage durch alle Schichten
+      </h3>
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem;">
+        Drücke den Button, um zu sehen, wie eine Webseitenanfrage durch das OSI-Modell wandert.
+      </p>
+
+      <button id="flow-btn"
+        style="font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;
+               padding:.5rem 1.2rem;border-radius:6px;border:1px solid var(--cyan);
+               background:var(--cyan-dim);color:var(--cyan);cursor:pointer;margin-bottom:1rem;
+               transition:background .2s;">
+        ▶ Animation starten
+      </button>
+
+      <div class="flow-steps" id="flow-steps">
+        <div class="flow-step" style="border-color:rgba(255,77,106,.3)">
+          <div class="flow-dot" style="background:var(--red)"></div>
+          <div class="flow-text">Browser erstellt HTTP-GET-Anfrage für <code style="color:var(--cyan);font-family:var(--mono);font-size:.8rem">www.example.com</code></div>
+          <div class="flow-layer">Schicht 7 – Anwendung</div>
+        </div>
+        <div class="flow-step" style="border-color:rgba(255,143,64,.3)">
+          <div class="flow-dot" style="background:#ff8f40"></div>
+          <div class="flow-text">Daten werden verschlüsselt (HTTPS/TLS) und kodiert</div>
+          <div class="flow-layer">Schicht 6 – Darstellung</div>
+        </div>
+        <div class="flow-step" style="border-color:rgba(255,182,39,.3)">
+          <div class="flow-dot" style="background:var(--amber)"></div>
+          <div class="flow-text">Sitzung wird aufgebaut, Verbindung verwaltet</div>
+          <div class="flow-layer">Schicht 5 – Sitzung</div>
+        </div>
+        <div class="flow-step" style="border-color:rgba(57,255,138,.3)">
+          <div class="flow-dot" style="background:var(--green)"></div>
+          <div class="flow-text">TCP-Segment mit Quell- und Zielport (80/443) wird erstellt</div>
+          <div class="flow-layer">Schicht 4 – Transport</div>
+        </div>
+        <div class="flow-step" style="border-color:rgba(0,229,255,.3)">
+          <div class="flow-dot" style="background:var(--cyan)"></div>
+          <div class="flow-text">IP-Paket: Quell-IP + Ziel-IP hinzugefügt, Router leitet weiter</div>
+          <div class="flow-layer">Schicht 3 – Netzwerk</div>
+        </div>
+        <div class="flow-step" style="border-color:rgba(123,94,248,.3)">
+          <div class="flow-dot" style="background:#7b5ef8"></div>
+          <div class="flow-text">Ethernet-Frame mit MAC-Adressen erzeugt, Switch vermittelt</div>
+          <div class="flow-layer">Schicht 2 – Sicherung</div>
+        </div>
+        <div class="flow-step" style="border-color:rgba(168,85,247,.3)">
+          <div class="flow-dot" style="background:#a855f7"></div>
+          <div class="flow-text">Bits werden als elektrische Signale / Licht über das Kabel übertragen</div>
+          <div class="flow-layer">Schicht 1 – Bitübertragung</div>
+        </div>
+      </div>
+
+      <div class="speech" style="margin-top:1rem">
+        <span class="speech-label">Präsentation – Datenfluss erklären:</span>
+        „Wenn ich eine Webseite aufrufe, wandern die Daten von oben nach unten durch alle Schichten. Oben, in Schicht 7, entsteht die eigentliche HTTP-Anfrage. Jede Schicht fügt einen eigenen Header hinzu – das nennt sich Enkapsulierung. Am Ziel passiert genau das Umgekehrte: Die Schichten werden von unten nach oben wieder abgebaut, bis die Anwendung die Daten erhält."
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     4 · PRAKTISCHE NACHWEISE
+══════════════════════════════════ -->
+<section id="nachweise">
+  <div class="section-wrap">
+    <p class="s-eyebrow rv">Belege</p>
+    <h2 class="s-title rv">Praktische Nachweise</h2>
+    <p class="s-desc rv">
+      Klicke auf einen Slot, um deinen Screenshot oder ein Bild direkt hochzuladen.
+      Die Bilder bleiben nur in diesem Browser-Tab gespeichert.
+    </p>
+
+    <div class="g3 rv">
+      <div>
+        <p class="slot-label">Moodletest Ergebnis</p>
+        <div class="slot" id="s1" onclick="document.getElementById('f1').click()">
+          <input id="f1" type="file" accept="image/*" onchange="loadSlot('s1',this)">
+          <span class="slot-ico">📊</span>
+          <span>Screenshot hier einfügen</span>
+        </div>
+      </div>
+      <div>
+        <p class="slot-label">Subnetting Aufgabe</p>
+        <div class="slot" id="s2" onclick="document.getElementById('f2').click()">
+          <input id="f2" type="file" accept="image/*" onchange="loadSlot('s2',this)">
+          <span class="slot-ico">🔢</span>
+          <span>Screenshot hier einfügen</span>
+        </div>
+      </div>
+      <div>
+        <p class="slot-label">Packet Tracer – Netzwerk</p>
+        <div class="slot" id="s3" onclick="document.getElementById('f3').click()">
+          <input id="f3" type="file" accept="image/*" onchange="loadSlot('s3',this)">
+          <span class="slot-ico">🖥️</span>
+          <span>Screenshot hier einfügen</span>
+        </div>
+      </div>
+      <div>
+        <p class="slot-label">Packet Tracer – Konfiguration</p>
+        <div class="slot" id="s4" onclick="document.getElementById('f4').click()">
+          <input id="f4" type="file" accept="image/*" onchange="loadSlot('s4',this)">
+          <span class="slot-ico">⚙️</span>
+          <span>Screenshot hier einfügen</span>
+        </div>
+      </div>
+      <div>
+        <p class="slot-label">OSI-Zuordnung / Aufgabe</p>
+        <div class="slot" id="s5" onclick="document.getElementById('f5').click()">
+          <input id="f5" type="file" accept="image/*" onchange="loadSlot('s5',this)">
+          <span class="slot-ico">📋</span>
+          <span>Screenshot hier einfügen</span>
+        </div>
+      </div>
+      <div>
+        <p class="slot-label">Weiterer Nachweis</p>
+        <div class="slot" id="s6" onclick="document.getElementById('f6').click()">
+          <input id="f6" type="file" accept="image/*" onchange="loadSlot('s6',this)">
+          <span class="slot-ico">➕</span>
+          <span>Screenshot hier einfügen</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     5 · ÜBERFACHLICHE KOMPETENZEN
+══════════════════════════════════ -->
+<section id="soft">
+  <div class="section-wrap">
+    <p class="s-eyebrow rv">Soft Skills</p>
+    <h2 class="s-title rv">Überfachliche Kompetenzen</h2>
+    <p class="s-desc rv">
+      Neben den fachlichen Inhalten habe ich zwei zentrale überfachliche Kompetenzen entwickelt,
+      die meinen Lernprozess maßgeblich geprägt haben.
+    </p>
+
+    <div class="g2">
+      <!-- Kommunikation -->
+      <div class="card card-accent-top amber rv">
+        <div style="font-size:1.8rem;margin-bottom:.8rem">💬</div>
+        <h3 style="font-family:var(--head);font-size:1.1rem;margin-bottom:.3rem">Kommunikationsfähigkeit</h3>
+
+        <div class="rating-dots" id="rd-komm">
+          <div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div>
+          <div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div>
+          <div class="rdot on"></div><div class="rdot"></div><div class="rdot"></div><div class="rdot"></div>
+        </div>
+
+        <p style="font-size:.88rem;color:var(--muted);margin-bottom:.9rem">
+          <strong style="color:var(--text)">Was ich gemacht habe:</strong>
+          Ich habe aktiv im Team gearbeitet und regelmäßig meine Lösungswege erklärt.
+          Dabei habe ich Fachbegriffe wie IP-Adresse, Subnetzmaske und VLAN bewusst genutzt
+          und verständlich erklärt – auch für Mitschüler, die noch wenig Vorwissen hatten.
+        </p>
+
+        <div style="font-family:var(--mono);font-size:.72rem;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem">Nachweise</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem">
+          <li style="font-size:.85rem;color:var(--muted);display:flex;gap:.6rem;align-items:flex-start">
+            <span style="color:var(--amber)">✓</span> Aktive Teilnahme an Teamgesprächen
+          </li>
+          <li style="font-size:.85rem;color:var(--muted);display:flex;gap:.6rem;align-items:flex-start">
+            <span style="color:var(--amber)">✓</span> Lösungswege erklärt und im Team präsentiert
+          </li>
+          <li style="font-size:.85rem;color:var(--muted);display:flex;gap:.6rem;align-items:flex-start">
+            <span style="color:var(--amber)">✓</span> Technische Inhalte für andere verständlich gemacht
+          </li>
+        </ul>
+
+        <div class="speech">
+          <span class="speech-label">Reflexion:</span>
+          „Am Anfang fiel es mir schwer, technische Inhalte so zu erklären, dass andere sie verstehen. Ich habe gemerkt: Es reicht nicht, etwas selbst zu verstehen – man muss es auch formulieren können. Durch regelmäßiges Erklären im Team bin ich deutlich sicherer geworden."
+        </div>
+      </div>
+
+      <!-- Problemlösung -->
+      <div class="card card-accent-top red rv">
+        <div style="font-size:1.8rem;margin-bottom:.8rem">🧩</div>
+        <h3 style="font-family:var(--head);font-size:1.1rem;margin-bottom:.3rem">Problemlösung</h3>
+
+        <div class="rating-dots" id="rd-prob">
+          <div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div>
+          <div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div>
+          <div class="rdot on"></div><div class="rdot on"></div><div class="rdot"></div><div class="rdot"></div>
+        </div>
+
+        <p style="font-size:.88rem;color:var(--muted);margin-bottom:.9rem">
+          <strong style="color:var(--text)">Was ich gemacht habe:</strong>
+          Ich bin strukturiert vorgegangen: Probleme in Schritte zerlegt, feste Rechenwege beim Subnetting angewendet.
+          Im Packet Tracer habe ich Fehler systematisch gesucht –
+          erst IP-Adressen prüfen, dann Verbindungen, dann Konfiguration.
+        </p>
+
+        <div style="font-family:var(--mono);font-size:.72rem;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem">Nachweise</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem">
+          <li style="font-size:.85rem;color:var(--muted);display:flex;gap:.6rem;align-items:flex-start">
+            <span style="color:var(--red)">✓</span> Selbstständig gelöste Subnetting-Aufgaben
+          </li>
+          <li style="font-size:.85rem;color:var(--muted);display:flex;gap:.6rem;align-items:flex-start">
+            <span style="color:var(--red)">✓</span> Fehleranalyse in Netzwerken (Packet Tracer)
+          </li>
+          <li style="font-size:.85rem;color:var(--muted);display:flex;gap:.6rem;align-items:flex-start">
+            <span style="color:var(--red)">✓</span> Erfolgreiche Umsetzung von Netzwerktopologien
+          </li>
+        </ul>
+
+        <div class="speech">
+          <span class="speech-label">Reflexion:</span>
+          „Anfangs war ich bei komplexen Aufgaben schnell überfordert. Ich habe dann gelernt, ein Problem in Teilprobleme zu zerlegen und jeden Schritt einzeln abzuarbeiten. Das hat besonders beim Subnetting und bei der Fehlersuche im Packet Tracer sehr geholfen."
+        </div>
+      </div>
+    </div>
+
+    <!-- Lernprozess-Timeline -->
+    <hr class="divider">
+
+    <h3 class="rv" style="font-family:var(--head);font-size:1.1rem;margin-bottom:1.8rem;">
+      Lernprozess-Timeline
+    </h3>
+
+    <div class="timeline rv">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-date">Woche 1 – Einstieg</div>
+        <div class="tl-head">Moodletest & Lernpotenziale</div>
+        <div class="tl-body">
+          Moodletest absolviert. Erkannte Schwächen: Subnetting-Berechnung, OSI-Schichten.
+          Lernziele konkret formuliert. Keine Vorkenntnisse in Subnetting.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="border-color:var(--green);box-shadow:0 0 8px var(--green);"></div>
+        <div class="tl-date">Woche 2–3 – OSI</div>
+        <div class="tl-head">OSI-Modell erarbeitet</div>
+        <div class="tl-body">
+          Alle 7 Schichten durchgearbeitet. Protokolle und Geräte zugeordnet.
+          Datenfluss anhand HTTP-Beispiel erklärt. Im Team präsentiert.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="border-color:var(--amber);box-shadow:0 0 8px var(--amber);"></div>
+        <div class="tl-date">Woche 3–5 – Subnetting</div>
+        <div class="tl-head">Subnetting systematisch gelernt</div>
+        <div class="tl-body">
+          Subnetzmasken binär verstanden. Eigene Berechnungsroutine entwickelt.
+          Erste komplexe Aufgaben mit /26, /27, /28 gelöst. VLSM kennengelernt.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="border-color:var(--red);box-shadow:0 0 8px var(--red);"></div>
+        <div class="tl-date">Woche 5–6 – Packet Tracer</div>
+        <div class="tl-head">Praxisanwendung & Fehleranalyse</div>
+        <div class="tl-body">
+          Netzwerke in Packet Tracer aufgebaut. Typische Fehler (falsche Subnetzmaske,
+          Gateway-Fehler) eigenständig analysiert und behoben.
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="border-color:var(--green);box-shadow:0 0 8px var(--green);"></div>
+        <div class="tl-date">Woche 7 – Abschluss</div>
+        <div class="tl-head">Präsentation & Dokumentation</div>
+        <div class="tl-body">
+          Gruppenarbeit präsentiert. Individuellen Lernprozess dokumentiert.
+          Lernziele überprüft – alle Kernkompetenzen erreicht.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     6 · REFLEXION
+══════════════════════════════════ -->
+<section id="reflexion">
+  <div class="section-wrap narrow">
+    <p class="s-eyebrow rv">Rückblick</p>
+    <h2 class="s-title rv">Reflexion</h2>
+    <p class="s-desc rv">
+      Eine ehrliche Bestandsaufnahme: Was war schwierig, was hat sich verändert,
+      und wie habe ich gelernt?
+    </p>
+
+    <div class="rv">
+      <div class="refl-item">
+        <div class="refl-q">Was fiel mir am Anfang schwer?</div>
+        <div class="refl-a">
+          Subnetting war das größte Hindernis – ich verstand nicht, warum man Netzwerke überhaupt aufteilt,
+          und die binäre Logik hinter Subnetzmasken war mir völlig fremd. Auch das OSI-Modell war zunächst
+          nur Theorie ohne Bezug zur Praxis: Ich konnte die Schichten nennen, aber nicht erklären,
+          <em>warum</em> sie existieren oder wie sie zusammenspielen. Überfachlich war es schwierig,
+          mich aktiv einzubringen und technische Inhalte klar zu kommunizieren.
+        </div>
+      </div>
+
+      <div class="refl-item">
+        <div class="refl-q">Was habe ich verbessert?</div>
+        <div class="refl-a">
+          Beim Subnetting habe ich einen festen Rechenweg entwickelt, den ich immer anwende.
+          Das hat die Unsicherheit beseitigt. Beim OSI-Modell bin ich von „auswendig lernen" zu
+          „wirklich verstehen" übergegangen – indem ich konkrete Beispiele (wie HTTP-Anfragen)
+          durchgespielt habe. In der Teamarbeit habe ich bewusst Aufgaben übernommen und
+          angefangen, meine Gedanken laut zu erklären.
+        </div>
+      </div>
+
+      <div class="refl-item">
+        <div class="refl-q">Wie habe ich gelernt?</div>
+        <div class="refl-a">
+          Am meisten hat mir geholfen, Dinge selbst anzuwenden – Berechnungen selbst durchführen,
+          Netzwerke in Packet Tracer aufbauen, Fehler suchen. Außerdem hat das Erklären im Team
+          mein eigenes Verständnis vertieft. Ich habe gemerkt: Erst wenn ich etwas jemandem anderen
+          erklären kann, habe ich es wirklich verstanden.
+        </div>
+      </div>
+
+      <div class="refl-item">
+        <div class="refl-q">Was kann ich jetzt besser?</div>
+        <div class="refl-a">
+          Ich kann selbstständig Subnetze berechnen und planen – auch mit ungeraden Prefixen und VLSM.
+          Das OSI-Modell kann ich vollständig erklären und auf reale Szenarien anwenden.
+          Im Team kommuniziere ich proaktiv, nutze Fachbegriffe bewusst und kann
+          komplexe Themen vereinfacht erklären. Probleme gehe ich strukturiert an,
+          statt überfordert aufzugeben.
+        </div>
+      </div>
+    </div>
+
+    <div class="speech rv" style="margin-top:1.5rem">
+      <span class="speech-label">Präsentation – Abschlusssatz:</span>
+      „Rückblickend war dieser Lernprozess für mich sehr wertvoll – nicht nur wegen der Netzwerkinhalte, sondern weil ich gelernt habe, wie ich am besten lerne: durch Anwenden, Erklären und systematisches Vorgehen. Diese Methoden nehme ich mit."
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     7 · NOTENVORSCHLAG
+══════════════════════════════════ -->
+<section id="note">
+  <div class="section-wrap narrow">
+    <p class="s-eyebrow rv">Selbsteinschätzung</p>
+    <h2 class="s-title rv">Notenvorschlag</h2>
+
+    <div class="grade-wrap rv">
+      <div class="grade-num">2</div>
+      <div class="grade-sub">Mein Notenvorschlag · Note: Gut</div>
+
+      <p class="grade-reason">
+        Ich schlage mir die Note <strong>2 (gut)</strong> vor, weil ich meine fachlichen Lernziele
+        nachweislich erreicht habe: Ich kann Subnetze sicher berechnen, VLSM anwenden und das
+        OSI-Modell vollständig erklären und auf Praxisbeispiele übertragen.
+        Meine Entwicklung ist durch Berechnungen, Packet-Tracer-Konfigurationen und
+        den Moodletest belegbar.
+        Überfachlich habe ich aktiv zur Teamarbeit beigetragen, Lösungswege kommuniziert
+        und meine Problemlösekompetenz deutlich verbessert.
+        Eine <strong>1</strong> schlage ich nicht vor, da einzelne Bereiche –
+        wie erweiterte VLSM-Szenarien und komplexere Routing-Konfigurationen –
+        noch nicht vollständig vertieft sind.
+      </p>
+
+      <div class="speech" style="margin-top:1.5rem;text-align:left">
+        <span class="speech-label">Begründung im Gespräch:</span>
+        „Ich habe alle Kernlernziele erreicht und kann sie an konkreten Beispielen belegen.
+        Besonders stolz bin ich auf meine Entwicklung beim Subnetting, weil ich dort ohne
+        jedes Vorwissen gestartet bin. Ich habe auch über das Nötige hinaus gearbeitet –
+        zum Beispiel VLSM eigenständig erarbeitet.
+        Meine Leistung entspricht einer guten Note, aber da noch Potenzial nach oben besteht,
+        sehe ich mich bei einer 2."
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<footer>
+  Lernfeld Netzwerktechnik · Individueller Lernprozess · 2024/25
+</footer>
+
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<script>
+/* ── Scroll Reveal ── */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('vis');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.rv, .tl-item').forEach(el => revObs.observe(el));
+
+/* ── Animate Bars ── */
+function animateBars() {
+  document.querySelectorAll('.bar[data-w]').forEach(bar => {
+    bar.style.width = bar.dataset.w + '%';
+  });
+}
+
+/* Trigger bars when hero is visible */
+const heroObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) animateBars();
+}, { threshold: 0.3 });
+
+heroObs.observe(document.getElementById('hero'));
+
+/* Also trigger on all bar-containing sections */
+document.querySelectorAll('.bar[data-w]').forEach(bar => {
+  const sectObs = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      bar.style.width = bar.dataset.w + '%';
+    }
+  }, { threshold: 0.3 });
+  sectObs.observe(bar.closest('section') || bar);
+});
+
+/* ── HTTP Dataflow Animation ── */
+const flowBtn = document.getElementById('flow-btn');
+const flowSteps = document.querySelectorAll('.flow-step');
+
+flowBtn.addEventListener('click', () => {
+  // Reset
+  flowSteps.forEach(s => s.classList.remove('show'));
+  flowBtn.disabled = true;
+  flowBtn.style.opacity = '0.5';
+
+  // Animate each step with delay
+  flowSteps.forEach((step, i) => {
+    setTimeout(() => {
+      step.classList.add('show');
+      if (i === flowSteps.length - 1) {
+        flowBtn.disabled = false;
+        flowBtn.style.opacity = '1';
+        flowBtn.textContent = '↺ Wiederholen';
+      }
+    }, i * 450);
+  });
+});
+
+/* ── Screenshot Upload ── */
+function loadSlot(slotId, input) {
+  const slot = document.getElementById(slotId);
+  if (!input.files || !input.files[0]) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    // Remove old image
+    const old = slot.querySelector('img');
+    if (old) old.remove();
+
+    const img = document.createElement('img');
+    img.src = e.target.result;
+    slot.appendChild(img);
+
+    // Hide placeholder text
+    slot.querySelector('.slot-ico').style.display = 'none';
+    slot.querySelectorAll('span:not(.slot-ico)').forEach(s => s.style.display = 'none');
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+/* ── Smooth active nav highlight ── */
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+
+const navObs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + entry.target.id
+          ? 'var(--cyan)' : '';
+      });
+    }
+  });
+}, { threshold: 0.5 });
+
+sections.forEach(s => navObs.observe(s));
+</script>
+</body>
+</html>
